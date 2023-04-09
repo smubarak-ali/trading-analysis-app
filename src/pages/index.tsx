@@ -12,6 +12,7 @@ import { Bar } from "react-chartjs-2";
 
 import { CotModel } from "../helper/models";
 import { useEffect, useState } from "react";
+import numbro from "numbro";
 
 ChartJS.register(
   CategoryScale,
@@ -43,11 +44,30 @@ export default function Home() {
         options={{
           plugins: {
             title: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || "";
+
+                  if (label) {
+                    label += ": ";
+                  }
+                  if (context.parsed.y !== null) {
+                    label += numbro(context.parsed.y / 100).format({
+                      output: "percent",
+                      mantissa: 2,
+                    });
+                  }
+                  return label;
+                },
+              },
+            },
           },
           scales: {
             x: { stacked: true },
             y: { stacked: true, min: 0, max: 100 },
           },
+          responsive: true,
         }}
         data={{
           labels: cotData?.map((x) => x.code),
