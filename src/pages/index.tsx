@@ -55,21 +55,20 @@ export default function Home() {
             {
               label: "Longs",
               data: cotData?.map((x) => {
-                return x.percentOfLong;
+                return (x.totalLong / (x.totalLong + x.totalShort)) * 100;
               }),
-              backgroundColor: "blue",
+              backgroundColor: "#7DB9B6",
             },
             {
               label: "Shorts",
               data: cotData?.map((x) => {
-                return x.percentOfShort;
+                return (x.totalShort / (x.totalLong + x.totalShort)) * 100;
               }),
-              backgroundColor: "red",
+              backgroundColor: "#F15A59",
             },
           ],
         }}
       />
-      COT Report
     </div>
   );
 }
