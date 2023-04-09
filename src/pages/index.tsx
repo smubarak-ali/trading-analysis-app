@@ -10,8 +10,8 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-import { CotResponseModel } from "../helper/models";
-import { useEffect } from "react";
+import { CotModel } from "../helper/models";
+import { useEffect, useState } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -24,19 +24,18 @@ ChartJS.register(
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-interface cotData {}
-
 export default function Home() {
-  const { data: cotData, data: cotError } = useSWR<CotResponseModel[]>(
+  const [chartData, setChartData] = useState<CotModel[]>([]);
+
+  const { data: cotData, data: cotError } = useSWR<CotModel[]>(
     "http://localhost:8080/api/report/cot",
     fetcher
   );
 
-  // useEffect(() => {
-  //   if (!!cotData) {
-
-  //   }
-  // }, [cotData]);
+  useEffect(() => {
+    if (!!cotData) {
+    }
+  }, [cotData]);
 
   return (
     <div className="p-3">
@@ -51,17 +50,21 @@ export default function Home() {
           },
         }}
         data={{
-          // labels: cotData?.filter((x) => x.key),
-          labels: ["XAU", "JPY"],
+          labels: cotData?.map((x) => x.code),
           datasets: [
             {
-              data: [85, 0],
+              label: "Longs",
+              data: cotData?.map((x) => {
+                return x.percentOfLong;
+              }),
               backgroundColor: "blue",
             },
             {
-              data: [13, 30],
+              label: "Shorts",
+              data: cotData?.map((x) => {
+                return x.percentOfShort;
+              }),
               backgroundColor: "red",
-              // stack: "Stack 0",
             },
           ],
         }}
