@@ -15,3 +15,13 @@ export interface CotModel {
   percentOfLong: number;
   percentOfShort: number;
 }
+
+export interface SentimentResponseModel {
+  symbols: SentimentModel[];
+}
+
+export interface SentimentModel {
+  name: string;
+  shortPercentage: number;
+  longPercentage: number;
+}

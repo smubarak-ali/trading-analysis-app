@@ -9,10 +9,10 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import numbro from "numbro";
 
 import { CotModel } from "../helper/models";
-import { useEffect, useState } from "react";
-import numbro from "numbro";
+import { fetcher } from "../helper/fetcher";
 
 ChartJS.register(
   CategoryScale,
@@ -23,23 +23,19 @@ ChartJS.register(
   Legend
 );
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
-
 export default function Home() {
-  const [chartData, setChartData] = useState<CotModel[]>([]);
-
   const { data: cotData, data: cotError } = useSWR<CotModel[]>(
     "http://localhost:8080/api/report/cot",
     fetcher
   );
 
-  useEffect(() => {
-    if (!!cotData) {
-    }
-  }, [cotData]);
-
   return (
-    <div className="p-3">
+    <div
+      className="p-5"
+      style={{
+        width: "75%",
+      }}
+    >
       <Bar
         options={{
           plugins: {
@@ -64,8 +60,20 @@ export default function Home() {
             },
           },
           scales: {
-            x: { stacked: true },
-            y: { stacked: true, min: 0, max: 100 },
+            x: {
+              stacked: true,
+              grid: {
+                display: false,
+              },
+            },
+            y: {
+              stacked: true,
+              min: 0,
+              max: 100,
+              grid: {
+                display: false,
+              },
+            },
           },
           responsive: true,
         }}
@@ -77,14 +85,14 @@ export default function Home() {
               data: cotData?.map((x) => {
                 return (x.totalLong / (x.totalLong + x.totalShort)) * 100;
               }),
-              backgroundColor: "#7DB9B6",
+              backgroundColor: "#0EA293",
             },
             {
               label: "Shorts",
               data: cotData?.map((x) => {
                 return (x.totalShort / (x.totalLong + x.totalShort)) * 100;
               }),
-              backgroundColor: "#F15A59",
+              backgroundColor: "#ED2B2A",
             },
           ],
         }}
