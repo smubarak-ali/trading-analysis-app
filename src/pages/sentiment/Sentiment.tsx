@@ -1,30 +1,26 @@
+import { useCallback, useEffect, useState } from "react";
 import {
     IonButtons,
     IonContent,
     IonHeader,
-    IonLabel,
+    IonLoading,
     IonMenuButton,
     IonPage,
     IonSelect,
     IonSelectOption,
     IonTitle,
     IonToolbar,
-    SelectChangeEventDetail,
+    useIonViewDidLeave,
 } from "@ionic/react";
-import useSWR from "swr";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import { Bar } from "react-chartjs-2";
 import numbro from "numbro";
+import { CancelToken } from "axios";
+import { Bar } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
-import { AppConfig, CotModel, fetcher, SentimentModel, SentimentResponseModel, symbols } from "../../utils";
-import { useCallback, useEffect, useState } from "react";
+import { AppConfig, CotModel, fetcher, SentimentModel, SentimentResponseModel, symbols, useCancellableSWR } from "../../utils";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
-
-interface Props {
-    name: string;
-}
 
 interface Props {
     name: string;
@@ -33,19 +29,32 @@ interface Props {
 const searchDdl = ["USD", "AUD", "CAD", "CHF", "EUR", "JPY", "GBP", "NZD"];
 
 const Sentiment: React.FC<Props> = ({ name }) => {
+    let cancelToken: CancelToken;
+
     const [filteredList, setFilteredList] = useState<SentimentModel[]>([]);
     const [searchFilterList, setSearchFilterList] = useState<SentimentModel[]>([]);
     const [selected, setSelected] = useState(searchDdl[0]);
 
-    const { data: sentimentData } = useSWR<SentimentResponseModel>(`${AppConfig.API_URL}/report/sentiment`, fetcher);
+    const [{ data: sentimentData, isLoading }, cancelFn] = useCancellableSWR<SentimentResponseModel>(
+        () => [`${AppConfig.API_URL}/report/sentiment`],
+        {
+            shouldRetryOnError: false,
+        }
+    );
 
     const updateSearchFilterList = useCallback((list: SentimentModel[]) => {
         setSearchFilterList(list);
     }, []);
 
+    useIonViewDidLeave(() => {
+        if (cancelFn) {
+            // console.log(" useIonViewDidLeave inside cancelFn...");
+            cancelFn.abort();
+        }
+    });
+
     useEffect(() => {
         if (!!sentimentData && sentimentData.symbols.length > 0) {
-            console.log(" COT useEffect called.... ");
             const list: SentimentModel[] = [];
             for (const symb of sentimentData.symbols) {
                 if (symbols.includes(symb.name)) {
@@ -77,6 +86,7 @@ const Sentiment: React.FC<Props> = ({ name }) => {
 
     return (
         <IonPage>
+            <IonLoading isOpen={isLoading} message={"Loading..."} />
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">

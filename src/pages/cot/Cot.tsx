@@ -5,21 +5,19 @@ import {
     IonGrid,
     IonHeader,
     IonItem,
-    IonLabel,
     IonLoading,
     IonMenuButton,
     IonPage,
     IonRow,
     IonTitle,
     IonToolbar,
+    useIonViewDidLeave,
 } from "@ionic/react";
-import useSWR from "swr";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import numbro from "numbro";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
-import { AppConfig, CotModel, fetcher } from "../../utils";
+import { AppConfig, CotModel, useCancellableSWR } from "../../utils";
 import CotChart from "../../components/cot/CotChart";
 import CotTable from "../../components/cot/CotTable";
 
@@ -30,7 +28,15 @@ interface Props {
 }
 
 const Cot: React.FC<Props> = ({ name }) => {
-    const { data: cotData, data: cotError, isLoading } = useSWR<CotModel[]>(`${AppConfig.API_URL}/report/cot`, fetcher);
+    const [{ data: cotData, isLoading }, cancelFn] = useCancellableSWR<CotModel[]>(() => `${AppConfig.API_URL}/report/cot`, {
+        shouldRetryOnError: false,
+    });
+
+    useIonViewDidLeave(() => {
+        if (cancelFn) {
+            cancelFn.abort();
+        }
+    });
 
     return (
         <IonPage>
