@@ -10,12 +10,14 @@ interface Props {
     plotData: ChartDataset<"bar", number[]>[];
 }
 
-const CotChart: React.FC<Props> = ({ labels, plotData }) => {
+const SentimentChart: React.FC<Props> = ({ labels, plotData }) => {
     return (
         <Bar
             options={{
+                indexAxis: "y",
                 plugins: {
                     title: { display: false },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function (context) {
@@ -25,9 +27,9 @@ const CotChart: React.FC<Props> = ({ labels, plotData }) => {
                                     label += ": ";
                                 }
                                 if (context.parsed.y !== null) {
-                                    label += numbro(context.parsed.y / 100).format({
+                                    label += numbro(context.parsed.x / 100).format({
                                         output: "percent",
-                                        mantissa: 2,
+                                        mantissa: 0,
                                     });
                                 }
                                 return label;
@@ -43,7 +45,7 @@ const CotChart: React.FC<Props> = ({ labels, plotData }) => {
                             });
                         },
                         font: {
-                            size: 10,
+                            size: 11,
                             weight: "bold",
                         },
                     },
@@ -55,10 +57,7 @@ const CotChart: React.FC<Props> = ({ labels, plotData }) => {
                             display: false,
                         },
                         ticks: {
-                            font: {
-                                weight: "bold",
-                            },
-                            color: "white",
+                            display: false,
                         },
                     },
                     y: {
@@ -69,7 +68,12 @@ const CotChart: React.FC<Props> = ({ labels, plotData }) => {
                             display: false,
                         },
                         ticks: {
-                            display: false,
+                            display: true,
+                            font: {
+                                weight: "bold",
+                                size: 12,
+                            },
+                            color: "white",
                         },
                     },
                 },
@@ -86,4 +90,4 @@ const CotChart: React.FC<Props> = ({ labels, plotData }) => {
     );
 };
 
-export default CotChart;
+export default SentimentChart;

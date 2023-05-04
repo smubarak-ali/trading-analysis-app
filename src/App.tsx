@@ -1,6 +1,7 @@
 import { IonApp, IonRouterOutlet, IonSplitPane, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { Redirect, Route } from "react-router-dom";
+import { initializeApp } from "firebase/app";
 import Menu from "./components/Menu";
 
 /* Core CSS required for Ionic components to work properly */
@@ -24,8 +25,10 @@ import "./theme/variables.css";
 import "./App.css";
 import Cot from "./pages/cot/Cot";
 import Sentiment from "./pages/sentiment/Sentiment";
+import { firebaseConfig } from "./utils/helper/FirebaseHelper";
 
 setupIonicReact();
+initializeApp(firebaseConfig);
 
 const App: React.FC = () => {
     return (

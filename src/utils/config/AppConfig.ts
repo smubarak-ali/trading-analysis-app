@@ -1,3 +1,3 @@
 export class AppConfig {
-    static API_URL = "http://13.214.59.167:8081/api";
+    static API_URL = "http://cot_reader_api_prod:8081/api";
 }

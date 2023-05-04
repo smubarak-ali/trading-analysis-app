@@ -13,15 +13,10 @@ import {
     IonToolbar,
     useIonViewDidLeave,
 } from "@ionic/react";
-import { Bar } from "react-chartjs-2";
-import ChartDataLabels from "chartjs-plugin-datalabels";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
 import { AppConfig, CotModel, useCancellableSWR } from "../../utils";
 import CotChart from "../../components/cot/CotChart";
 import CotTable from "../../components/cot/CotTable";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 interface Props {
     name: string;
@@ -84,7 +79,7 @@ const Cot: React.FC<Props> = ({ name }) => {
                             )}
 
                             {!!cotData && (
-                                <IonItem>
+                                <IonItem style={{ paddingTop: 5 }}>
                                     <CotTable data={cotData} />
                                 </IonItem>
                             )}

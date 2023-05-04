@@ -1,24 +1,27 @@
 import { useCallback, useEffect, useState } from "react";
 import {
     IonButtons,
+    IonCol,
     IonContent,
+    IonGrid,
     IonHeader,
+    IonLabel,
     IonLoading,
     IonMenuButton,
     IonPage,
+    IonRow,
     IonSelect,
     IonSelectOption,
     IonTitle,
     IonToolbar,
     useIonViewDidLeave,
 } from "@ionic/react";
-import numbro from "numbro";
-import { CancelToken } from "axios";
-import { Bar } from "react-chartjs-2";
+import format from "date-fns/format";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
-import { AppConfig, CotModel, fetcher, SentimentModel, SentimentResponseModel, symbols, useCancellableSWR } from "../../utils";
+import { AppConfig, SentimentModel, SentimentResponseModel, symbols, useCancellableSWR } from "../../utils";
+import SentimentChart from "../../components/sentiment/SentimentChart";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
@@ -29,18 +32,13 @@ interface Props {
 const searchDdl = ["USD", "AUD", "CAD", "CHF", "EUR", "JPY", "GBP", "NZD"];
 
 const Sentiment: React.FC<Props> = ({ name }) => {
-    let cancelToken: CancelToken;
-
     const [filteredList, setFilteredList] = useState<SentimentModel[]>([]);
     const [searchFilterList, setSearchFilterList] = useState<SentimentModel[]>([]);
     const [selected, setSelected] = useState(searchDdl[0]);
 
-    const [{ data: sentimentData, isLoading }, cancelFn] = useCancellableSWR<SentimentResponseModel>(
-        () => [`${AppConfig.API_URL}/report/sentiment`],
-        {
-            shouldRetryOnError: false,
-        }
-    );
+    const [{ data: sentimentData, isLoading }, cancelFn] = useCancellableSWR<SentimentResponseModel>(() => `${AppConfig.API_URL}/report/sentiment`, {
+        shouldRetryOnError: false,
+    });
 
     const updateSearchFilterList = useCallback((list: SentimentModel[]) => {
         setSearchFilterList(list);
@@ -48,7 +46,6 @@ const Sentiment: React.FC<Props> = ({ name }) => {
 
     useIonViewDidLeave(() => {
         if (cancelFn) {
-            // console.log(" useIonViewDidLeave inside cancelFn...");
             cancelFn.abort();
         }
     });
@@ -97,110 +94,64 @@ const Sentiment: React.FC<Props> = ({ name }) => {
             </IonHeader>
 
             <IonContent fullscreen={true}>
-                <IonSelect
-                    className="ion-padding"
-                    justify="space-between"
-                    label="Select instrument"
-                    placeholder="Select Instrument"
-                    value={selected}
-                    onIonChange={(e) => searchCurrencyChanged(e.target.value)}
-                >
-                    {searchDdl.map((x) => (
-                        <IonSelectOption key={x} value={x}>
-                            {x}
-                        </IonSelectOption>
-                    ))}
-                </IonSelect>
+                <IonGrid>
+                    <IonRow>
+                        <IonCol class="ion-hide-lg-down"></IonCol>
+                        <IonCol size-lg="8" size="12">
+                            <IonSelect
+                                className="ion-padding"
+                                justify="space-between"
+                                label="Select instrument"
+                                placeholder="Select Instrument"
+                                value={selected}
+                                onIonChange={(e) => searchCurrencyChanged(e.target.value)}
+                            >
+                                {searchDdl.map((x) => (
+                                    <IonSelectOption key={x} value={x}>
+                                        {x}
+                                    </IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonCol>
+                        <IonCol class="ion-hide-lg-down"></IonCol>
+                    </IonRow>
+                    <IonRow>
+                        <IonCol class="ion-hide-lg-down"></IonCol>
+                        <IonCol size-lg="8" size="12">
+                            {!!searchFilterList && searchFilterList.length > 0 && (
+                                <>
+                                    <div style={{ padding: 8 }}>
+                                        <label style={{ fontSize: 12 }}>Fetched at: </label>
+                                        <label style={{ fontSize: 12, fontWeight: "bold" }}>
+                                            {format(new Date(searchFilterList[0].recordDate), "dd-MM-yyyy hh:mm aaa")}
+                                        </label>
+                                    </div>
 
-                <Bar
-                    options={{
-                        indexAxis: "y",
-                        plugins: {
-                            title: { display: false },
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        let label = context.dataset.label || "";
-
-                                        if (label) {
-                                            label += ": ";
-                                        }
-                                        if (context.parsed.y !== null) {
-                                            label += numbro(context.parsed.y / 100).format({
-                                                output: "percent",
-                                                mantissa: 2,
-                                            });
-                                        }
-                                        return label;
-                                    },
-                                },
-                            },
-                            datalabels: {
-                                color: "white",
-                                formatter: function (value, context) {
-                                    return numbro(value / 100).format({
-                                        output: "percent",
-                                        mantissa: 0,
-                                    });
-                                },
-                                font: {
-                                    size: 10,
-                                },
-                            },
-                        },
-                        scales: {
-                            x: {
-                                stacked: true,
-                                grid: {
-                                    display: false,
-                                },
-                                ticks: {
-                                    display: false,
-                                },
-                            },
-                            y: {
-                                stacked: true,
-                                min: 0,
-                                max: 100,
-                                grid: {
-                                    display: false,
-                                },
-                                ticks: {
-                                    display: true,
-                                    font: {
-                                        weight: "bold",
-                                        size: 12,
-                                    },
-                                    color: "white",
-                                },
-                            },
-                        },
-                        responsive: true,
-                    }}
-                    data={{
-                        labels: searchFilterList.map((x) => x.name),
-                        datasets: [
-                            {
-                                label: "Longs",
-                                data: searchFilterList?.map((x) => {
-                                    return x.longPercentage;
-                                }),
-                                backgroundColor: "#0EA293",
-                            },
-                            {
-                                label: "Shorts",
-                                data: searchFilterList?.map((x) => {
-                                    return x.shortPercentage;
-                                }),
-                                backgroundColor: "#B6354A",
-                            },
-                        ],
-                    }}
-                    style={{
-                        padding: 10,
-                    }}
-                />
+                                    <SentimentChart
+                                        labels={searchFilterList.map((x) => x.name)}
+                                        plotData={[
+                                            {
+                                                label: "Longs",
+                                                data: searchFilterList?.map((x) => {
+                                                    return x.longPercentage;
+                                                }),
+                                                backgroundColor: "#0EA293",
+                                            },
+                                            {
+                                                label: "Shorts",
+                                                data: searchFilterList?.map((x) => {
+                                                    return x.shortPercentage;
+                                                }),
+                                                backgroundColor: "#B6354A",
+                                            },
+                                        ]}
+                                    />
+                                </>
+                            )}
+                        </IonCol>
+                        <IonCol class="ion-hide-lg-down"></IonCol>
+                    </IonRow>
+                </IonGrid>
             </IonContent>
         </IonPage>
     );

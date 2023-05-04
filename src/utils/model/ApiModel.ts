@@ -1,9 +1,9 @@
 export interface CotResponseModel {
     key: string;
     data: CotModel[];
-  }
-  
-  export interface CotModel {
+}
+
+export interface CotModel {
     id: number;
     reportDate: Date;
     instrument: string;
@@ -14,15 +14,15 @@ export interface CotResponseModel {
     changeInShort: number;
     percentOfLong: number;
     percentOfShort: number;
-  }
-  
-  export interface SentimentResponseModel {
+}
+
+export interface SentimentResponseModel {
     symbols: SentimentModel[];
-  }
-  
-  export interface SentimentModel {
+}
+
+export interface SentimentModel {
     name: string;
     shortPercentage: number;
     longPercentage: number;
-  }
-  
+    recordDate: Date;
+}
