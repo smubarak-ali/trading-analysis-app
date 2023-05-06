@@ -8,12 +8,20 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 interface Props {
     labels: string[];
     plotData: ChartDataset<"bar", number[]>[];
+    onBarClick: (dataItemIndex: number) => void;
 }
 
-const CotChart: React.FC<Props> = ({ labels, plotData }) => {
+const CotChart: React.FC<Props> = ({ labels, plotData, onBarClick }) => {
     return (
         <Bar
             options={{
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const itemIndex = elements[0].index;
+                        // console.log("  itemIndex: ", itemIndex);
+                        onBarClick(itemIndex);
+                    }
+                },
                 plugins: {
                     title: { display: false },
                     tooltip: {
@@ -81,6 +89,7 @@ const CotChart: React.FC<Props> = ({ labels, plotData }) => {
             }}
             style={{
                 padding: 5,
+                paddingBottom: 20,
             }}
         />
     );

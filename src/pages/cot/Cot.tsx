@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
     IonButtons,
     IonCol,
@@ -16,13 +17,14 @@ import {
 
 import { AppConfig, CotModel, useCancellableSWR } from "../../utils";
 import CotChart from "../../components/cot/CotChart";
-import CotTable from "../../components/cot/CotTable";
+import CotItemInfo from "../../components/cot/CotItemInfo";
 
 interface Props {
     name: string;
 }
 
 const Cot: React.FC<Props> = ({ name }) => {
+    const [selectedData, setSelectedData] = useState<CotModel>();
     const [{ data: cotData, isLoading }, cancelFn] = useCancellableSWR<CotModel[]>(() => `${AppConfig.API_URL}/report/cot`, {
         shouldRetryOnError: false,
     });
@@ -32,6 +34,13 @@ const Cot: React.FC<Props> = ({ name }) => {
             cancelFn.abort();
         }
     });
+
+    const onBarClick = (dataItemIndex: number) => {
+        if (!!cotData && cotData.length > 0) {
+            // console.log(" the item is : ", cotData[dataItemIndex].code);
+            setSelectedData(cotData[dataItemIndex]);
+        }
+    };
 
     return (
         <IonPage>
@@ -53,6 +62,7 @@ const Cot: React.FC<Props> = ({ name }) => {
                             {!!cotData && cotData.length > 0 && (
                                 <CotChart
                                     labels={cotData.map((x) => x.code) || []}
+                                    onBarClick={onBarClick}
                                     plotData={[
                                         {
                                             label: "Longs",
@@ -78,11 +88,7 @@ const Cot: React.FC<Props> = ({ name }) => {
                                 />
                             )}
 
-                            {!!cotData && (
-                                <IonItem style={{ paddingTop: 5 }}>
-                                    <CotTable data={cotData} />
-                                </IonItem>
-                            )}
+                            {!!selectedData && <CotItemInfo cot={selectedData} />}
                         </IonCol>
                         <IonCol class="ion-hide-lg-down"></IonCol>
                     </IonRow>
