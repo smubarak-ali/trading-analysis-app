@@ -3,6 +3,7 @@ import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
 import numbro from "numbro";
 
 import { CotModel } from "../../utils";
+import { format } from "date-fns";
 
 interface Props {
     cot: CotModel;
@@ -16,6 +17,15 @@ const CotItemInfo: FC<Props> = ({ cot }) => {
                 <IonCardSubtitle>{cot.instrument}</IonCardSubtitle>
             </IonCardHeader>
             <IonCardContent>
+                <IonRow>
+                    <IonCol sizeMd="4" size="6">
+                        Report Date
+                    </IonCol>
+                    <IonCol sizeMd="8" size="6">
+                        {format(new Date(cot.reportDate), "dd-MM-yyyy")}
+                    </IonCol>
+                </IonRow>
+
                 <IonRow>
                     <IonCol sizeMd="4" size="6">
                         Total Long

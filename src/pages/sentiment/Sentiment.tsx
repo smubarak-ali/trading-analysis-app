@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import {
     IonButtons,
+    IonCard,
     IonCol,
     IonContent,
     IonGrid,
     IonHeader,
+    IonItem,
     IonLabel,
     IonLoading,
     IonMenuButton,
@@ -19,9 +21,11 @@ import {
 import format from "date-fns/format";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { useHistory } from "react-router-dom";
 
 import { AppConfig, SentimentModel, SentimentResponseModel, symbols, useCancellableSWR } from "../../utils";
 import SentimentChart from "../../components/sentiment/SentimentChart";
+import SentimentAnalysisTable from "../../components/sentiment/SentimentAnalysisTable";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
@@ -35,6 +39,7 @@ const Sentiment: React.FC<Props> = ({ name }) => {
     const [filteredList, setFilteredList] = useState<SentimentModel[]>([]);
     const [searchFilterList, setSearchFilterList] = useState<SentimentModel[]>([]);
     const [selected, setSelected] = useState(searchDdl[0]);
+    const history = useHistory();
 
     const [{ data: sentimentData, isLoading }, cancelFn] = useCancellableSWR<SentimentResponseModel>(() => `${AppConfig.API_URL}/report/sentiment`, {
         shouldRetryOnError: false,
@@ -81,6 +86,10 @@ const Sentiment: React.FC<Props> = ({ name }) => {
         setSearchFilterList(list);
     };
 
+    // const onAnalysisClick = () => {
+    //     history.push("/page/sentiment/analysis", { name: "Sentiment Analysis", list: filteredList });
+    // };
+
     return (
         <IonPage>
             <IonLoading isOpen={isLoading} message={"Loading..."} />
@@ -123,7 +132,7 @@ const Sentiment: React.FC<Props> = ({ name }) => {
                                     <div style={{ padding: 8 }}>
                                         <label style={{ fontSize: 12 }}>Fetched at: </label>
                                         <label style={{ fontSize: 12, fontWeight: "bold" }}>
-                                            {format(new Date(searchFilterList[0].recordDate), "dd-MM-yyyy hh:mm aaa")}
+                                            {format(new Date(searchFilterList[0].recordDate), "dd-MMM hh:mm aaa")}
                                         </label>
                                     </div>
 
@@ -148,6 +157,15 @@ const Sentiment: React.FC<Props> = ({ name }) => {
                                     />
                                 </>
                             )}
+
+                            <IonCard style={{ padding: 10 }}>
+                                {filteredList.length > 0 && (
+                                    <>
+                                        {/* <IonLabel class="ion-text-center">Sentiment Analysis</IonLabel> */}
+                                        <SentimentAnalysisTable list={filteredList} />
+                                    </>
+                                )}
+                            </IonCard>
                         </IonCol>
                         <IonCol class="ion-hide-lg-down"></IonCol>
                     </IonRow>

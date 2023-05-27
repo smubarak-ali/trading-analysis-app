@@ -1,0 +1,10 @@
+ion-label {
+    font-size: 11pt !important;
+}
+
+@media only screen and (max-width: 768px) {
+    ion-label {
+        font-size: 9pt !important;
+    }
+}
+

@@ -26,9 +26,10 @@ import "./App.css";
 import Cot from "./pages/cot/Cot";
 import Sentiment from "./pages/sentiment/Sentiment";
 import { firebaseConfig } from "./utils/helper/FirebaseHelper";
+import StrategyListPage from "./pages/strategies/StrategyListPage";
 
 setupIonicReact();
-initializeApp(firebaseConfig);
+// initializeApp(firebaseConfig);
 
 const App: React.FC = () => {
     return (
@@ -45,9 +46,15 @@ const App: React.FC = () => {
                             <Sentiment name="Retail Sentiment" />
                         </Route>
 
+                        {/* <Route path="/page/sentiment/analysis" exact={true} component={SentimentAnalysis} /> */}
+
                         <Route path="/page/cot" exact={true}>
                             <Cot name="Commitment of Traders" />
                         </Route>
+
+                        {/* <Route path="/page/strategies" exact={true}>
+                            <StrategyListPage name="Strategies" />
+                        </Route> */}
                     </IonRouterOutlet>
                 </IonSplitPane>
             </IonReactRouter>
